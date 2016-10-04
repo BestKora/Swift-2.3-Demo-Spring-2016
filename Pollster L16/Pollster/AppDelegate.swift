@@ -14,16 +14,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
         let settings = UIUserNotificationSettings(forTypes: [.Alert,.Badge,.Sound], categories: nil)
-        application.registerUserNotificationSettings(settings)
-        application.registerForRemoteNotifications()
+         application.registerUserNotificationSettings(settings)
+         application.registerForRemoteNotifications()
         return true
+
     }
     
-    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
-        let ckqn = CKQueryNotification(fromRemoteNotificationDictionary: userInfo as! [String:NSObject])
+    
+  
+    func application(application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+        let ckqn = CKQueryNotification(fromRemoteNotificationDictionary: userInfo
+                                                                   as! [String:NSObject])
         let notification = NSNotification(
             name: CloudKitNotifications.NotificationReceived,
             object: self,

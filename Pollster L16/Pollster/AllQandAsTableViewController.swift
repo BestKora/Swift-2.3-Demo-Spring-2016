@@ -37,6 +37,7 @@ class AllQandAsTableViewController: UITableViewController
         let query = CKQuery(recordType: Cloud.Entity.QandA, predicate: predicate)
         query.sortDescriptors = [NSSortDescriptor(key: Cloud.Attribute.Question, ascending: true)]
         database.performQuery(query, inZoneWithID: nil) { (records, error) in
+            print (error)
             if records != nil {
                 dispatch_async(dispatch_get_main_queue()) {
                     self.allQandAs = records!
@@ -95,6 +96,7 @@ class AllQandAsTableViewController: UITableViewController
         if ckqn.subscriptionID == self.subscriptionID {
             if let recordID = ckqn.recordID {
                 switch ckqn.queryNotificationReason {
+                    
                 case .RecordCreated:
                     database.fetchRecordWithID(recordID) { (record, error) in
                         if record != nil {
@@ -123,8 +125,10 @@ class AllQandAsTableViewController: UITableViewController
         return allQandAs.count
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("QandA Cell", forIndexPath: indexPath)
+    override func tableView(tableView: UITableView,
+                            cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("QandA Cell",
+                                                               forIndexPath: indexPath)
         cell.textLabel?.text = allQandAs[indexPath.row].question
         return cell
     }
