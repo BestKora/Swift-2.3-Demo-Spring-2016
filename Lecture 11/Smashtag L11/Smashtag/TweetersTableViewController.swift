@@ -9,9 +9,10 @@
 import UIKit
 import CoreData
 
-// uses CoreDataTableViewController as its superclass
-// so all we need to do is set the fetchedResultsController var
-// and implement tableView(cellForRowAtIndexPath:)
+// используем CoreDataTableViewController в качестве superclass,
+// так что все, что нам нужно сделать:
+// 1. установить переменную fetchedResultsController и
+// 2. реализовать tableView(cellForRowAtIndexPath:)
 
 class TweetersTableViewController: CoreDataTableViewController
 {
@@ -20,44 +21,50 @@ class TweetersTableViewController: CoreDataTableViewController
     
     private func updateUI() {
         if let context = managedObjectContext where mention?.characters.count > 0 {
+            
             let request = NSFetchRequest(entityName: "TwitterUser")
-            request.predicate = NSPredicate(format: "any tweets.text contains[c] %@ and !screenName beginswith[c] %@", mention!, "darkside")
+            
+            request.predicate = NSPredicate(format:
+                "any tweets.text contains[c] %@ and !screenName beginswith[c] %@",
+                                            mention!, "darkside")
             request.sortDescriptors = [NSSortDescriptor(
                 key: "screenName",
                 ascending: true,
                 selector: #selector(NSString.localizedCaseInsensitiveCompare(_:))
             )]
+            
             fetchedResultsController = NSFetchedResultsController(
-                fetchRequest: request,
-                managedObjectContext: context,
-                sectionNameKeyPath: nil,
-                cacheName: nil
+                                                           fetchRequest: request,
+                                                   managedObjectContext: context,
+                                                     sectionNameKeyPath: nil,
+                                                              cacheName: nil
             )
         } else {
             fetchedResultsController = nil
         }
     }
     
-    // this is the only UITableViewDataSource method we have to implement
-    // if we use a CoreDataTableViewController
-    // the most important call is fetchedResultsController?.objectAtIndexPath(indexPath)
-    // (that's how we get the object that is in this row so we can load the cell up)
+    // это единственный метод UITableViewDataSource, который нужно реализовать,
+    // если мы используем CoreDataTableViewController
+    // очень важная часть - 
+    // вызов fetchedResultsController?.objectAtIndexPath(indexPath)
+    // (так мы получаем объект, который находится в той строке)
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("TwitterUserCell", forIndexPath: indexPath)
+    override func tableView(tableView: UITableView,
+                cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("TwitterUserCell",
+                                                          forIndexPath: indexPath)
 
-        if let twitterUser = fetchedResultsController?.objectAtIndexPath(indexPath) as? TwitterUser {
+        if let twitterUser = fetchedResultsController?.objectAtIndexPath(indexPath)
+                                                                 as? TwitterUser {
             var screenName: String?
             twitterUser.managedObjectContext?.performBlockAndWait {
-                // it's easy to forget to do this on the proper queue
                 screenName = twitterUser.screenName
-                // we're not assuming the context is a main queue context
-                // so we'll grab the screenName and return to the main queue
-                // to do the cell.textLabel?.text setting
             }
             cell.textLabel?.text = screenName
             if let count = tweetCountWithMentionByTwitterUser(twitterUser) {
-                cell.detailTextLabel?.text = (count == 1) ? "1 tweet" : "\(count) tweets"
+                cell.detailTextLabel?.text =
+                                       (count == 1) ? "1 tweet" : "\(count) tweets"
             } else {
                 cell.detailTextLabel?.text = ""
             }
@@ -66,8 +73,8 @@ class TweetersTableViewController: CoreDataTableViewController
         return cell
     }
     
-    // private func which figures out how many tweets
-    // were tweeted by the given user that contain our mention
+    // private func, которая определяет сколько tweets, содержащих наш mention,
+    // были посланы заданным пользователем
     
     private func tweetCountWithMentionByTwitterUser(user: TwitterUser) -> Int?
     {
